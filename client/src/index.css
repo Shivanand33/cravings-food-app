@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+:root {
+  /* Primary */
+  --color-primary: #161E54;
+  --color-primary-hover: #0F163F;
+
+  /* Secondary */
+  --color-secondary: #F16D34;
+  --color-secondary-hover: #D85F2E;
+
+  /* Background & Text */
+  --color-background: #BBE0EF;
+  --color-text: #161E54;
+
+  /* Accent */
+  --color-accent: #FF986A;
+}
+
+/* Custom Hero Animations */
+
+/* 1. Bike Delivery Riding Animation */
+@keyframes bikeRide {
+  0% {
+    transform: translateX(-120%) translateY(0px);
+    opacity: 0.2;
+  }
+  10% {
+    opacity: 1;
+  }
+  48% {
+    transform: translateX(35vw) translateY(-4px);
+  }
+  50% {
+    transform: translateX(40vw) translateY(2px);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(115vw) translateY(0px);
+    opacity: 0.2;
+  }
+}
+
+/* 2. Bike Wheel Spin */
+@keyframes wheelSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 3. Text Rotator Fade Up */
+@keyframes textFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.96);
+  }
+}
+
+/* 4. Floating Glass Badge */
+@keyframes floatBadge {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+/* 5. Ambient Pulse Glow */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.08);
+  }
+}
+
+/* 6. Rider Steam / Motion Smoke */
+@keyframes smokeTrail {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.8) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8) translateX(-30px);
+  }
+}
+
+/* Helper Utility Classes */
+.animate-bike-ride {
+  animation: bikeRide 14s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-wheel-spin {
+  animation: wheelSpin 0.6s linear infinite;
+}
+
+.animate-text-fade-up {
+  animation: textFadeUp 3s ease-in-out infinite;
+}
+
+.animate-float-badge {
+  animation: floatBadge 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+.animate-smoke-trail {
+  animation: smokeTrail 1s ease-out infinite;
+}
