@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "This is Creavings Backend",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": " nodemon index.js",
-    "seed:admin": "node ./src/seeders/seedAdmin.js",
-    "seed:user": "node ./src/seeders/seedUserData.js",
-    "seed:menu": "node ./src/seeders/seedMenuData.js"
-  },
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "nodemon index.js",
+  "start": "node index.js",
+  "seed:admin": "node ./src/seeders/seedAdmin.js",
+  "seed:user": "node ./src/seeders/seedUserData.js",
+  "seed:menu": "node ./src/seeders/seedMenuData.js"
+},
   "keywords": [],
   "author": "Shivanand chaurasiya",
   "license": "ISC",
