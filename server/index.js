@@ -18,7 +18,8 @@ const app = express();
 // CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://cravings-food-app.vercel.app"
+  "https://cravings-food-app.vercel.app",
+  "https://cravings-food-qtn1482js-shiva-be4e.vercel.app"
 ];
 
 app.use(cors({
