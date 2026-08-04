@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cloudinary from "./src/config/cloudinary.js";
 import cookieParser from "cookie-parser";
 import connectDB from "./src/config/db.js";
+
 import AuthRouter from "./src/routers/authRouter.js";
 import PublicRouter from "./src/routers/publicRouter.js";
 import UserRouter from "./src/routers/userRouter.js";
@@ -11,21 +12,26 @@ import RestaurantRouter from "./src/routers/restaurantRouter.js";
 import RiderRouter from "./src/routers/riderRouter.js";
 import PaymentRouter from "./src/routers/paymentRouter.js";
 import AdminRouter from "./src/routers/adminRouter.js";
+
 import { verifyRazorPayConnect } from "./src/config/razorpay.js";
+
 
 const app = express();
 
 
-// ✅ Production + Local CORS Fix
+// ================= CORS CONFIG =================
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow Postman, mobile apps, server requests
+
+      // Allow requests without origin (Postman, mobile apps)
       if (!origin) {
         return callback(null, true);
       }
 
-      // Allow localhost and all Vercel deployments
+
+      // Allow localhost + all Vercel deployments
       if (
         origin === "http://localhost:5173" ||
         origin.endsWith(".vercel.app")
@@ -33,71 +39,145 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error("Not allowed by CORS"));
+
+      return callback(
+        new Error("Not allowed by CORS")
+      );
     },
+
     credentials: true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS"
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization"
+    ]
   })
 );
 
 
+// Preflight request handle
+app.options("*", cors());
+
+
+// ================= MIDDLEWARE =================
+
 app.use(express.json());
+
 app.use(cookieParser());
+
 app.use(morgan("dev"));
 
 
-// Routes
+
+// ================= ROUTES =================
+
 app.use("/auth", AuthRouter);
+
 app.use("/public", PublicRouter);
+
 app.use("/user", UserRouter);
+
 app.use("/restaurant", RestaurantRouter);
+
 app.use("/rider", RiderRouter);
+
 app.use("/payment", PaymentRouter);
+
 app.use("/admin", AdminRouter);
 
 
-// Test Route
+
+// ================= TEST ROUTE =================
+
 app.get("/", (req, res) => {
   res.send("Cravings Server is Running 🚀");
 });
 
 
-// Error Handler
+
+
+// ================= ERROR HANDLER =================
+
 app.use((err, req, res, next) => {
-  const errorMessage = err.message || "Internal Server Error";
-  const statusCode = err.statusCode || 500;
+
+  const errorMessage =
+    err.message || "Internal Server Error";
+
+  const statusCode =
+    err.statusCode || 500;
+
 
   console.log("Error Found:", {
     errorMessage,
-    statusCode,
+    statusCode
   });
+
 
   res.status(statusCode).json({
-    message: errorMessage,
+    message: errorMessage
   });
+
 });
 
+
+
+
+// ================= SERVER START =================
 
 const port = process.env.PORT || 5000;
 
 
 app.listen(port, async () => {
-  console.log("Server Started at Port:", port);
+
+  console.log(
+    "Server Started at Port:",
+    port
+  );
+
 
   await connectDB();
 
 
+
   // Cloudinary Check
   try {
-    const res = await cloudinary.api.ping();
-    console.log("Cloudinary API is Working:", res);
+
+    const res =
+      await cloudinary.api.ping();
+
+    console.log(
+      "Cloudinary API is Working:",
+      res
+    );
+
   } catch (error) {
-    console.error("Cloudinary Error:", error);
+
+    console.error(
+      "Cloudinary Error:",
+      error
+    );
+
   }
 
 
+
   // Razorpay Check
-  const rzpKey = process.env.RAZORPAY_TEST_API_KEY?.trim();
-  const rzpSecret = process.env.RAZORPAY_TEST_API_SECRET?.trim();
+
+  const rzpKey =
+    process.env.RAZORPAY_TEST_API_KEY?.trim();
+
+  const rzpSecret =
+    process.env.RAZORPAY_TEST_API_SECRET?.trim();
+
 
 
   if (
@@ -106,18 +186,33 @@ app.listen(port, async () => {
     rzpKey.includes("1234567890") ||
     rzpSecret.includes("1234567890")
   ) {
+
     console.warn(
       "⚠️ RazorPay skipped — API keys not configured"
     );
+
   } else {
+
     try {
-      const res = await verifyRazorPayConnect();
-      console.log("✅ RazorPay connected", res);
+
+      const res =
+        await verifyRazorPayConnect();
+
+      console.log(
+        "✅ RazorPay connected",
+        res
+      );
+
+
     } catch (error) {
+
       console.error(
         "❌ RazorPay Error:",
         error?.error?.description || error
       );
+
     }
+
   }
+
 });
