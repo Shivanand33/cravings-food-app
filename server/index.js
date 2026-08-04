@@ -23,21 +23,21 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://cravings-food-app.vercel.app"
+  "https://cravings-food-app.vercel.app",
 ];
 
 
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin: (origin, callback) => {
 
-      // Allow Postman / mobile / server requests
+      // Allow Postman / Mobile Apps / Server Requests
       if (!origin) {
         return callback(null, true);
       }
 
 
-      // Allow all Vercel deployments
+      // Allow Vercel deployments
       if (
         allowedOrigins.includes(origin) ||
         origin.endsWith(".vercel.app")
@@ -46,9 +46,7 @@ app.use(
       }
 
 
-      return callback(
-        new Error("Not allowed by CORS")
-      );
+      return callback(null, false);
     },
 
     credentials: true,
@@ -59,15 +57,49 @@ app.use(
       "PUT",
       "PATCH",
       "DELETE",
-      "OPTIONS"
+      "OPTIONS",
     ],
 
     allowedHeaders: [
       "Content-Type",
-      "Authorization"
-    ]
+      "Authorization",
+    ],
   })
 );
+
+
+// Preflight OPTIONS handling
+app.use((req, res, next) => {
+
+  if (req.method === "OPTIONS") {
+
+    res.header(
+      "Access-Control-Allow-Origin",
+      req.headers.origin
+    );
+
+    res.header(
+      "Access-Control-Allow-Credentials",
+      "true"
+    );
+
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    );
+
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+
+    return res.sendStatus(200);
+  }
+
+  next();
+
+});
+
 
 
 // ================= MIDDLEWARE =================
@@ -77,6 +109,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(morgan("dev"));
+
 
 
 
@@ -98,11 +131,15 @@ app.use("/admin", AdminRouter);
 
 
 
+
 // ================= TEST ROUTE =================
 
 app.get("/", (req, res) => {
+
   res.send("Cravings Server is Running 🚀");
+
 });
+
 
 
 
@@ -113,27 +150,29 @@ app.use((err, req, res, next) => {
   const errorMessage =
     err.message || "Internal Server Error";
 
+
   const statusCode =
     err.statusCode || 500;
 
 
   console.log("Error Found:", {
     errorMessage,
-    statusCode
+    statusCode,
   });
 
 
   res.status(statusCode).json({
-    message: errorMessage
+    message: errorMessage,
   });
 
 });
 
 
 
+
 // ================= SERVER START =================
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4500;
 
 
 app.listen(port, async () => {
@@ -149,15 +188,18 @@ app.listen(port, async () => {
 
 
   // Cloudinary Check
+
   try {
 
     const res =
       await cloudinary.api.ping();
 
+
     console.log(
       "Cloudinary API is Working:",
       res
     );
+
 
   } catch (error) {
 
@@ -170,10 +212,12 @@ app.listen(port, async () => {
 
 
 
+
   // Razorpay Check
 
   const rzpKey =
     process.env.RAZORPAY_TEST_API_KEY?.trim();
+
 
   const rzpSecret =
     process.env.RAZORPAY_TEST_API_SECRET?.trim();
@@ -191,12 +235,15 @@ app.listen(port, async () => {
       "⚠️ RazorPay skipped — API keys not configured"
     );
 
+
   } else {
+
 
     try {
 
       const res =
         await verifyRazorPayConnect();
+
 
       console.log(
         "✅ RazorPay connected",
@@ -206,13 +253,16 @@ app.listen(port, async () => {
 
     } catch (error) {
 
+
       console.error(
         "❌ RazorPay Error:",
         error?.error?.description || error
       );
 
+
     }
 
   }
+
 
 });
