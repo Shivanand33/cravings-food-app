@@ -21,19 +21,25 @@ const app = express();
 
 // ================= CORS CONFIG =================
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://cravings-food-app.vercel.app"
+];
+
+
 app.use(
   cors({
     origin: function (origin, callback) {
 
-      // Allow requests without origin (Postman, mobile apps)
+      // Allow Postman / mobile / server requests
       if (!origin) {
         return callback(null, true);
       }
 
 
-      // Allow localhost + all Vercel deployments
+      // Allow all Vercel deployments
       if (
-        origin === "http://localhost:5173" ||
+        allowedOrigins.includes(origin) ||
         origin.endsWith(".vercel.app")
       ) {
         return callback(null, true);
@@ -62,10 +68,6 @@ app.use(
     ]
   })
 );
-
-
-// Preflight request handle
-app.options("*", cors());
 
 
 // ================= MIDDLEWARE =================
@@ -104,7 +106,6 @@ app.get("/", (req, res) => {
 
 
 
-
 // ================= ERROR HANDLER =================
 
 app.use((err, req, res, next) => {
@@ -127,7 +128,6 @@ app.use((err, req, res, next) => {
   });
 
 });
-
 
 
 
