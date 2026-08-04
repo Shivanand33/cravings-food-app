@@ -15,30 +15,35 @@ import { verifyRazorPayConnect } from "./src/config/razorpay.js";
 
 const app = express();
 
-// CORS Configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://cravings-food-app.vercel.app",
-  "https://cravings-food-qtn1482js-shiva-be4e.vercel.app"
-];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests like Postman/server-to-server
-    if (!origin) return callback(null, true);
+// ✅ Production + Local CORS Fix
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow Postman, mobile apps, server requests
+      if (!origin) {
+        return callback(null, true);
+      }
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+      // Allow localhost and all Vercel deployments
+      if (
+        origin === "http://localhost:5173" ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
 
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true
-}));
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+
 
 // Routes
 app.use("/auth", AuthRouter);
@@ -58,38 +63,42 @@ app.get("/", (req, res) => {
 
 // Error Handler
 app.use((err, req, res, next) => {
-  const ErrorMessage = err.message || "Internal Server Error";
-  const StatusCode = err.statusCode || 500;
+  const errorMessage = err.message || "Internal Server Error";
+  const statusCode = err.statusCode || 500;
 
   console.log("Error Found:", {
-    ErrorMessage,
-    StatusCode
+    errorMessage,
+    statusCode,
   });
 
-  res.status(StatusCode).json({
-    message: ErrorMessage
+  res.status(statusCode).json({
+    message: errorMessage,
   });
 });
 
 
 const port = process.env.PORT || 5000;
 
+
 app.listen(port, async () => {
   console.log("Server Started at Port:", port);
 
   await connectDB();
 
+
+  // Cloudinary Check
   try {
     const res = await cloudinary.api.ping();
     console.log("Cloudinary API is Working:", res);
   } catch (error) {
-    console.error("Error Connecting Cloudinary API:", error);
+    console.error("Cloudinary Error:", error);
   }
 
 
-  // Razorpay connection check
+  // Razorpay Check
   const rzpKey = process.env.RAZORPAY_TEST_API_KEY?.trim();
   const rzpSecret = process.env.RAZORPAY_TEST_API_SECRET?.trim();
+
 
   if (
     !rzpKey ||
